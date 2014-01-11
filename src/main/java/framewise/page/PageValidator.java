@@ -14,9 +14,9 @@ public class PageValidator {
 
     private final Logger logger = LoggerFactory.getLogger(PageValidator.class);
 
-    public void validate(int pageItemSize, int pageNumber, int navigationSize) {
-        if (0 >= pageNumber) {
-            String msg = "페이지 번호는 1부터 시작해야 합니다! (요청 페이지 번호=" + pageNumber + ")";
+    public void validate(PagingParam param) {
+        if (0 >= param.getPageNumber()) {
+            String msg = "페이지 번호는 1부터 시작해야 합니다! (요청 페이지 번호=" + param.getPageNumber() + ")";
             logger.error(msg);
             throw new UnCorrentPageArgumentException(msg);
         }
