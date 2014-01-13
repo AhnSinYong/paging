@@ -12,6 +12,7 @@ public class PagingParam implements Serializable {
     private int pageNumber = 1;
     private int pageItemSize = 10;
     private int navigationSize = 5;
+    private PagingType type = PagingType.NUMBERS;
 
     public PagingParam() {
     }
@@ -25,6 +26,13 @@ public class PagingParam implements Serializable {
         this.pageNumber = pageNumber;
         this.pageItemSize = pageItemSize;
         this.navigationSize = navigationSize;
+    }
+
+    public PagingParam(int pageNumber, int pageItemSize, int navigationSize, PagingType type) {
+        this.pageNumber = pageNumber;
+        this.pageItemSize = pageItemSize;
+        this.navigationSize = navigationSize;
+        this.type = type;
     }
 
     @Override
@@ -71,5 +79,13 @@ public class PagingParam implements Serializable {
 
     public void setNavigationSize(int navigationSize) {
         this.navigationSize = navigationSize;
+    }
+
+    public PagingType getType() {
+        return type;
+    }
+
+    public void setType(PagingType type) {
+        this.type = type;
     }
 }

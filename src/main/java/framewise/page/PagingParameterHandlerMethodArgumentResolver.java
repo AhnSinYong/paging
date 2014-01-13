@@ -22,17 +22,22 @@ public class PagingParameterHandlerMethodArgumentResolver implements HandlerMeth
         String itemSize = webRequest.getParameter("_pageItemSize");
         String pageNumber = webRequest.getParameter("_pageNumber");
         String naviSize = webRequest.getParameter("_navigationSize");
+        String type = webRequest.getParameter("_pagingType");
 
         if (StringUtils.hasText(itemSize)) {
             param.setPageItemSize(Integer.parseInt(itemSize));
         }
 
-        if(StringUtils.hasText(pageNumber)){
+        if (StringUtils.hasText(pageNumber)) {
             param.setPageNumber(Integer.parseInt(pageNumber));
         }
 
-        if(StringUtils.hasText(naviSize)){
+        if (StringUtils.hasText(naviSize)) {
             param.setNavigationSize(Integer.parseInt(naviSize));
+        }
+
+        if (StringUtils.hasText(type)) { // N=NUMBER, S=SCROLLING, F=FRONT&BACK
+            param.setType(PagingType.get(type));
         }
 
         return param;
