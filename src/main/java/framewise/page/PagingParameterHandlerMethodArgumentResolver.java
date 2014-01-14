@@ -11,6 +11,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author chanwook
  */
 public class PagingParameterHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
+
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return PagingParam.class.equals(parameter.getParameterType());
@@ -23,23 +24,52 @@ public class PagingParameterHandlerMethodArgumentResolver implements HandlerMeth
         String pageNumber = webRequest.getParameter("_pageNumber");
         String naviSize = webRequest.getParameter("_navigationSize");
         String type = webRequest.getParameter("_pagingType");
+        String[] vars = webRequest.getParameterValues("_var");
 
-        if (StringUtils.hasText(itemSize)) {
-            param.setPageItemSize(Integer.parseInt(itemSize));
+        setPageItemSize(param, itemSize);
+
+        setPageNumber(param, pageNumber);
+
+        setNavigationSize(param, naviSize);
+
+        setPageType(param, type);
+
+        setTemplateVariable(param, vars);
+
+        return param;
+    }
+
+    protected void setTemplateVariable(PagingParam param, String[] vars) {
+        if (vars != null && vars.length > 0) {
+            for (String var : vars) {
+                // key:value
+                String[] v = var.split(":");
+                param.addTemplateVariable(v[0], v[1]);
+            }
         }
+    }
 
-        if (StringUtils.hasText(pageNumber)) {
-            param.setPageNumber(Integer.parseInt(pageNumber));
+    protected void setPageType(PagingParam param, String type) {
+        if (StringUtils.hasText(type)) { // N=NUMBER, S=SCROLLING, FB=FRONT&BACK
+            param.setType(PagingType.get(type));
         }
+    }
 
+    protected void setNavigationSize(PagingParam param, String naviSize) {
         if (StringUtils.hasText(naviSize)) {
             param.setNavigationSize(Integer.parseInt(naviSize));
         }
+    }
 
-        if (StringUtils.hasText(type)) { // N=NUMBER, S=SCROLLING, F=FRONT&BACK
-            param.setType(PagingType.get(type));
+    protected void setPageNumber(PagingParam param, String pageNumber) {
+        if (StringUtils.hasText(pageNumber)) {
+            param.setPageNumber(Integer.parseInt(pageNumber));
         }
+    }
 
-        return param;
+    protected void setPageItemSize(PagingParam param, String itemSize) {
+        if (StringUtils.hasText(itemSize)) {
+            param.setPageItemSize(Integer.parseInt(itemSize));
+        }
     }
 }

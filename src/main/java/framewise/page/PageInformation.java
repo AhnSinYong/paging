@@ -1,16 +1,22 @@
 package framewise.page;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- *
  * 페이지 처리를 지원하는 모델 클래스. 페이징 주요 데이터 항목과 로직을 포함함
  *
  * @author chanwook
  */
 public class PageInformation implements Serializable {
+
+    private final Logger logger = LoggerFactory.getLogger(PageInformation.class);
 
     private int pageNumber;
     private int pageSize;
@@ -21,6 +27,8 @@ public class PageInformation implements Serializable {
     private boolean enableNext = false;
     private int numberGroupCount;
 
+    private Map<String, String> templateVariableMap = new HashMap<String, String>();
+
     /**
      * 기본 생성자
      */
@@ -30,10 +38,10 @@ public class PageInformation implements Serializable {
     /**
      * 실제 필요한 데이터를 인자로 받아서 인스턴스를 생성하는 생성자
      *
-     * @param pageNumber 전체 페이지 중 현재 페이지 수
-     * @param pageSize 한 페이지에서 담는 아이템 수
-     * @param totalCount 전체 아이템 수
-     * @param totalPage 전체 페이지 수
+     * @param pageNumber     전체 페이지 중 현재 페이지 수
+     * @param pageSize       한 페이지에서 담는 아이템 수
+     * @param totalCount     전체 아이템 수
+     * @param totalPage      전체 페이지 수
      * @param navigationSize 페이지 수로 페이징 처리 하는 경우에 한 화면에 보여주는 페이지의 수
      */
     public PageInformation(int pageNumber, int pageSize, long totalCount, int totalPage, int navigationSize) {
@@ -45,13 +53,21 @@ public class PageInformation implements Serializable {
         createPageNavigation(navigationSize);
     }
 
+    public PageInformation(PagingParam param, long totalCount, int totalPage) {
+        this(param.getPageNumber(), param.getPageItemSize(), totalCount, totalPage, param.getNavigationSize());
+
+        this.templateVariableMap = param.getTemplateVariableMap();
+    }
+
     /**
      * 페이지 네비게이션을 위한 정보를 생성
      *
      * @param navigationSize
      */
     public void createPageNavigation(int navigationSize) {
-        Assert.notLessThan(0, navigationSize, "Navigation Size는 0보다 작을 수 없습니다.");
+        if (navigationSize > 1) {
+            logger.debug("Navigation Size가 1보다 작기 때문에 Navigation bar 계산 로직을 수행하지 않습니다.(요청 size:" + navigationSize + ")");
+        }
 
         int navigationCount = calNavigationCount(navigationSize);
 
@@ -156,5 +172,13 @@ public class PageInformation implements Serializable {
 
     public void setNumberGroupCount(int numberSetCount) {
         this.numberGroupCount = numberSetCount;
+    }
+
+    public Map<String, String> getTemplateVariableMap() {
+        return templateVariableMap;
+    }
+
+    public void setTemplateVariableMap(Map<String, String> templateVariableMap) {
+        this.templateVariableMap = templateVariableMap;
     }
 }

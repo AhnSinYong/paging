@@ -1,6 +1,8 @@
 package framewise.page;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 페이징 처리를 위해 제공하는 웹 공통 파라미터
@@ -12,7 +14,10 @@ public class PagingParam implements Serializable {
     private int pageNumber = 1;
     private int pageItemSize = 10;
     private int navigationSize = 5;
+
     private PagingType type = PagingType.NUMBERS;
+
+    private Map<String, String> templateVariableMap = new HashMap<String, String>();
 
     public PagingParam() {
     }
@@ -87,5 +92,17 @@ public class PagingParam implements Serializable {
 
     public void setType(PagingType type) {
         this.type = type;
+    }
+
+    public Map<String, String> getTemplateVariableMap() {
+        return templateVariableMap;
+    }
+
+    public void setTemplateVariableMap(Map<String, String> templateVariableMap) {
+        this.templateVariableMap = templateVariableMap;
+    }
+
+    public void addTemplateVariable(String key, String value) {
+        this.templateVariableMap.put(key, value);
     }
 }
