@@ -65,8 +65,9 @@ public class PageInformation implements Serializable {
      * @param navigationSize
      */
     public void createPageNavigation(int navigationSize) {
-        if (navigationSize > 1) {
+        if (navigationSize < 1) {
             logger.debug("Navigation Size가 1보다 작기 때문에 Navigation bar 계산 로직을 수행하지 않습니다.(요청 size:" + navigationSize + ")");
+            return;
         }
 
         int navigationCount = calNavigationCount(navigationSize);
