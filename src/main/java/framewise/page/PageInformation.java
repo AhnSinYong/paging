@@ -19,13 +19,14 @@ public class PageInformation implements Serializable {
     private final Logger logger = LoggerFactory.getLogger(PageInformation.class);
 
     private int pageNumber;
-    private int pageSize;
+    private int pageItemSize;
     private long totalCount;
     private int totalPage;
     private Integer[] navigationNumber;
     private boolean enablePrevious = false;
     private boolean enableNext = false;
     private int numberGroupCount;
+    private int navigationSize;
 
     private Map<String, String> templateVariableMap = new HashMap<String, String>();
 
@@ -39,23 +40,23 @@ public class PageInformation implements Serializable {
      * 실제 필요한 데이터를 인자로 받아서 인스턴스를 생성하는 생성자
      *
      * @param pageNumber     전체 페이지 중 현재 페이지 수
-     * @param pageSize       한 페이지에서 담는 아이템 수
+     * @param pageItemSize       한 페이지에서 담는 아이템 수
      * @param totalCount     전체 아이템 수
      * @param totalPage      전체 페이지 수
      * @param navigationSize 페이지 수로 페이징 처리 하는 경우에 한 화면에 보여주는 페이지의 수
      */
-    public PageInformation(int pageNumber, int pageSize, long totalCount, int totalPage, int navigationSize) {
+    public PageInformation(int pageNumber, int pageItemSize, long totalCount, int totalPage, int navigationSize) {
         this.pageNumber = pageNumber;
-        this.pageSize = pageSize;
+        this.pageItemSize = pageItemSize;
         this.totalCount = totalCount;
         this.totalPage = totalPage;
+        this.navigationSize = navigationSize;
 
         createPageNavigation(navigationSize);
     }
 
     public PageInformation(PagingParam param, long totalCount, int totalPage) {
         this(param.getPageNumber(), param.getPageItemSize(), totalCount, totalPage, param.getNavigationSize());
-
         this.templateVariableMap = param.getTemplateVariableMap();
     }
 
@@ -119,12 +120,12 @@ public class PageInformation implements Serializable {
         this.pageNumber = pageNumber;
     }
 
-    public int getPageSize() {
-        return pageSize;
+    public int getPageItemSize() {
+        return pageItemSize;
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+    public void setPageItemSize(int pageItemSize) {
+        this.pageItemSize = pageItemSize;
     }
 
     public long getTotalCount() {
@@ -181,5 +182,13 @@ public class PageInformation implements Serializable {
 
     public void setTemplateVariableMap(Map<String, String> templateVariableMap) {
         this.templateVariableMap = templateVariableMap;
+    }
+
+    public int getNavigationSize() {
+        return navigationSize;
+    }
+
+    public void setNavigationSize(int navigationSize) {
+        this.navigationSize = navigationSize;
     }
 }
