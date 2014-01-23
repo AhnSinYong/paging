@@ -79,4 +79,37 @@ public class PageInformationTests {
         assertThat(p.isEnablePrevious(), is(true));
         assertThat(p.isEnableNext(), is(false));
     }
+
+    @Test
+    public void calcNavigationOrderValue(){
+        PageInformation p = new PageInformation(1, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(1));
+
+        p = new PageInformation(2, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(1));
+
+        p = new PageInformation(3, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(1));
+
+        p = new PageInformation(4, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(1));
+
+        p = new PageInformation(5, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(1));
+
+        p = new PageInformation(6, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(2));
+
+        p = new PageInformation(10, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(2));
+
+        p = new PageInformation(11, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(3));
+
+        p = new PageInformation(12, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+        assertThat(p.getNavigationOrder(), is(3));
+
+//        p = new PageInformation(33, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
+//        assertThat(p.getNavigationOrder(), is(7));
+    }
 }

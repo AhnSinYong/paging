@@ -18,17 +18,56 @@ public class PageInformation implements Serializable {
 
     private final Logger logger = LoggerFactory.getLogger(PageInformation.class);
 
+    /**
+     * 몇 번째 페이지 인가
+     */
     private int pageNumber;
-    private int pageItemSize;
-    private long totalCount;
-    private int totalPage;
-    private Integer[] navigationNumber;
-    private boolean enablePrevious = false;
-    private boolean enableNext = false;
-    private int numberGroupCount;
-    private int navigationSize;
 
+    /**
+     * 페이징 당 몇 개의 데이터(=아이템)을 보여줄 것인가?
+     */
+    private int pageItemSize;
+
+    /**
+     * 전체는 몇 개의 데이터(=아이템)이 있는
+     */
+    private long totalItemCount;
+
+    /**
+     * 전체 페이지 수는?
+     */
+    private int totalPage;
+
+    /**
+     * 페이징 화면 하단의 직접 네비게이션 가능한 숫자는?
+     */
+    private Integer[] navigationNumber;
+
+    /**
+     * 이전 버튼을 활성화할 것인가?
+     */
+    private boolean enablePrevious = false;
+
+    /**
+     * 다음 버튼을 활성화할 것인가?
+     */
+    private boolean enableNext = false;
+
+    /**
+     * 현재 네비게이션 바 중에서 몇 번째 숫자를 보여주고 있는가?
+     */
+    private int navigationOnCount;
+
+    /**
+     * 페이지 수로 페이징 처리 하는 경우에 한 화면에 보여주는 페이지의 수
+     */
+    private int navigationNumberSize;
+
+    /**
+     * 렌더싱 시 전달되는 generic한 데이터 구조
+     */
     private Map<String, String> templateVariableMap = new HashMap<String, String>();
+    private int navigationOrder;
 
     /**
      * 기본 생성자
@@ -39,71 +78,92 @@ public class PageInformation implements Serializable {
     /**
      * 실제 필요한 데이터를 인자로 받아서 인스턴스를 생성하는 생성자
      *
-     * @param pageNumber     전체 페이지 중 현재 페이지 수
-     * @param pageItemSize       한 페이지에서 담는 아이템 수
-     * @param totalCount     전체 아이템 수
-     * @param totalPage      전체 페이지 수
-     * @param navigationSize 페이지 수로 페이징 처리 하는 경우에 한 화면에 보여주는 페이지의 수
+     * @param pageNumber           전체 페이지 중 현재 페이지 수
+     * @param pageItemSize         한 페이지에서 담는 아이템 수
+     * @param totalItemCount       전체 아이템 수
+     * @param totalPage            전체 페이지 수
+     * @param navigationNumberSize 페이지 수로 페이징 처리 하는 경우에 한 화면에 보여주는 페이지의 수
      */
-    public PageInformation(int pageNumber, int pageItemSize, long totalCount, int totalPage, int navigationSize) {
+    public PageInformation(int pageNumber, int pageItemSize, long totalItemCount, int totalPage, int navigationNumberSize) {
         this.pageNumber = pageNumber;
         this.pageItemSize = pageItemSize;
-        this.totalCount = totalCount;
+        this.totalItemCount = totalItemCount;
         this.totalPage = totalPage;
-        this.navigationSize = navigationSize;
+        this.navigationNumberSize = navigationNumberSize;
 
-        createPageNavigation(navigationSize);
+        createPageNavigation(navigationNumberSize);
     }
 
-    public PageInformation(PagingParam param, long totalCount, int totalPage) {
-        this(param.getPageNumber(), param.getPageItemSize(), totalCount, totalPage, param.getNavigationSize());
+    public PageInformation(PagingParam param, long totalItemCount, int totalPage) {
+        this(param.getPageNumber(), param.getPageItemSize(), totalItemCount, totalPage, param.getNavigationSize());
         this.templateVariableMap = param.getTemplateVariableMap();
     }
 
     /**
      * 페이지 네비게이션을 위한 정보를 생성
      *
-     * @param navigationSize
+     * @param navigationNumberSize
      */
-    public void createPageNavigation(int navigationSize) {
-        if (navigationSize < 1) {
-            logger.debug("Navigation Size가 1보다 작기 때문에 Navigation bar 계산 로직을 수행하지 않습니다.(요청 size:" + navigationSize + ")");
+    public void createPageNavigation(int navigationNumberSize) {
+        if (navigationNumberSize < 1) {
+            logger.debug("Navigation Size가 1보다 작기 때문에 Navigation bar 계산 로직을 수행하지 않습니다.(요청 size:" + navigationNumberSize + ")");
             return;
         }
 
-        int navigationCount = calNavigationCount(navigationSize);
+        int navigationOnCount = calNavigationOnCount(navigationNumberSize);
+        setNavigationOnCount(navigationOnCount);
+
+        int navigationOrder = calNavigationOrder(navigationNumberSize);
+        setNavigationOrder(navigationOrder);
 
         List<Integer> list = new ArrayList<Integer>();
 
-        for (int i = 1; i <= navigationSize; i++) {
-            if (i == navigationCount) {
+        for (int i = 1; i <= navigationNumberSize; i++) {
+            if (i == navigationOnCount) {
                 addIfPossible(list, pageNumber);
-            } else if (i > navigationCount) {
-                addIfPossible(list, pageNumber + (i - navigationCount));
-            } else if (i < navigationCount) {
-                addIfPossible(list, pageNumber - (navigationCount - i));
+            } else if (i > navigationOnCount) {
+                addIfPossible(list, pageNumber + (i - navigationOnCount));
+            } else if (i < navigationOnCount) {
+                addIfPossible(list, pageNumber - (navigationOnCount - i));
             }
         }
-        setNumberGroupCount(navigationCount);
+
         this.navigationNumber = list.toArray(new Integer[list.size()]);
 
         // 이전버튼 활성화 처리 여부
-        if (this.navigationNumber[0] > navigationSize) {
+        if (this.navigationNumber[0] > navigationNumberSize) {
             this.enablePrevious = true;
         }
 
         // 다음버튼 활성화 처리 여부
-        if (this.navigationNumber.length == navigationSize && this.navigationNumber[4] < this.totalPage) {
+        if (this.navigationNumber.length == navigationNumberSize && this.navigationNumber[4] < this.totalPage) {
             this.enableNext = true;
         }
     }
 
-    private int calNavigationCount(int navigationSize) {
+    protected int calNavigationOrder(int navigationNumberSize) {
+        int navigationOrder = this.pageNumber / navigationNumberSize;
+        if (this.pageNumber % navigationNumberSize != 0) {
+            navigationOrder += 1;
+        }
+        return navigationOrder;
+    }
+
+    /**
+     * 현재 페이지가 네비게이션 바에서 몇 번째 순서인지 계산함
+     *
+     * @param navigationSize
+     * @return
+     */
+    private int calNavigationOnCount(int navigationSize) {
         int count = this.pageNumber % navigationSize;
-        if (0 == count) {
+
+        // 네비게이션하기 위한 마지막 페이지인경우 navigationSize로 나눌 씨 나머지가 0이고,
+        if (this.pageNumber % navigationSize == 0) {
             return navigationSize;
         }
         return count;
+
     }
 
     private void addIfPossible(List<Integer> list, int count) {
@@ -128,12 +188,12 @@ public class PageInformation implements Serializable {
         this.pageItemSize = pageItemSize;
     }
 
-    public long getTotalCount() {
-        return totalCount;
+    public long getTotalItemCount() {
+        return totalItemCount;
     }
 
-    public void setTotalCount(long totalCount) {
-        this.totalCount = totalCount;
+    public void setTotalItemCount(long totalItemCount) {
+        this.totalItemCount = totalItemCount;
     }
 
     public int getTotalPage() {
@@ -168,12 +228,12 @@ public class PageInformation implements Serializable {
         this.enableNext = enableNext;
     }
 
-    public int getNumberGroupCount() {
-        return numberGroupCount;
+    public int getNavigationOnCount() {
+        return navigationOnCount;
     }
 
-    public void setNumberGroupCount(int numberSetCount) {
-        this.numberGroupCount = numberSetCount;
+    public void setNavigationOnCount(int numberSetCount) {
+        this.navigationOnCount = numberSetCount;
     }
 
     public Map<String, String> getTemplateVariableMap() {
@@ -184,11 +244,21 @@ public class PageInformation implements Serializable {
         this.templateVariableMap = templateVariableMap;
     }
 
-    public int getNavigationSize() {
-        return navigationSize;
+    public int getNavigationNumberSize() {
+        return navigationNumberSize;
     }
 
-    public void setNavigationSize(int navigationSize) {
-        this.navigationSize = navigationSize;
+    public void setNavigationNumberSize(int navigationNumberSize) {
+        this.navigationNumberSize = navigationNumberSize;
     }
+
+    public void setNavigationOrder(int navigationOrder) {
+        this.navigationOrder = navigationOrder;
+    }
+
+    public int getNavigationOrder() {
+        return navigationOrder;
+    }
+    
+
 }
