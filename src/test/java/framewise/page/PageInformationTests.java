@@ -112,4 +112,11 @@ public class PageInformationTests {
 //        p = new PageInformation(33, 5, TOTAL_COUNT, TOTAL_PAGE, NAVIGATION_SIZE);
 //        assertThat(p.getNavigationOrder(), is(7));
     }
+
+    @Test
+    public void beforeNextNavigation(){
+        PageInformation p = new PageInformation(3, 5, 30, 6, 1);
+        assertThat(p.getNavigationNumber().length, is(1));
+        assertThat(p.getNavigationNumber()[0], is(3));
+    }
 }

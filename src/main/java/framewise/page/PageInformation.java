@@ -116,6 +116,24 @@ public class PageInformation implements Serializable {
         int navigationOrder = calNavigationOrder(navigationNumberSize);
         setNavigationOrder(navigationOrder);
 
+        List<Integer> list = resolveNavigationNumber(navigationNumberSize, navigationOnCount);
+
+        this.navigationNumber = list.toArray(new Integer[list.size()]);
+
+        // 이전버튼 활성화 처리 여부
+        if (this.navigationNumber[0] > navigationNumberSize) {
+            this.enablePrevious = true;
+        }
+
+        // 다음버튼 활성화 처리 여부
+        if (this.navigationNumber.length == navigationNumberSize &&
+                ((this.navigationNumber.length == 5 && this.navigationNumber[4] < this.totalPage)
+                        || (navigationNumberSize == 1 && navigationNumberSize < this.totalPage))) {
+            this.enableNext = true;
+        }
+    }
+
+    protected List<Integer> resolveNavigationNumber(int navigationNumberSize, int navigationOnCount) {
         List<Integer> list = new ArrayList<Integer>();
 
         for (int i = 1; i <= navigationNumberSize; i++) {
@@ -127,18 +145,7 @@ public class PageInformation implements Serializable {
                 addIfPossible(list, pageNumber - (navigationOnCount - i));
             }
         }
-
-        this.navigationNumber = list.toArray(new Integer[list.size()]);
-
-        // 이전버튼 활성화 처리 여부
-        if (this.navigationNumber[0] > navigationNumberSize) {
-            this.enablePrevious = true;
-        }
-
-        // 다음버튼 활성화 처리 여부
-        if (this.navigationNumber.length == navigationNumberSize && this.navigationNumber[4] < this.totalPage) {
-            this.enableNext = true;
-        }
+        return list;
     }
 
     protected int calNavigationOrder(int navigationNumberSize) {
@@ -259,6 +266,6 @@ public class PageInformation implements Serializable {
     public int getNavigationOrder() {
         return navigationOrder;
     }
-    
+
 
 }
